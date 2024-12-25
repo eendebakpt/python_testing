@@ -41,6 +41,14 @@ def bench_alloc(loops):
     return pyperf.perf_counter() - t0
 
 
+def bench_lshift(loops):
+    range_it = range(loops)
+    t0 = pyperf.perf_counter()
+    for ii in range_it:
+        _ = ii << 2
+    return pyperf.perf_counter() - t0
+
+
 # %timeit bench_long(1000)
 
 if __name__ == "__main__":
@@ -48,3 +56,4 @@ if __name__ == "__main__":
     runner.bench_time_func("bench_collatz", bench_collatz)
     runner.bench_time_func("bench_long", bench_long)
     runner.bench_time_func("bench_alloc", bench_alloc)
+    runner.bench_time_func("bench_lshift", bench_lshift)
