@@ -61,6 +61,42 @@ def bench_builtin_or_method(loops):
     return pyperf.perf_counter() - t0
 
 
+class A:
+    def __init__(self, value):
+        self.value = value
+
+    def x(self):
+        return self.value
+
+    @property
+    def v(self):
+        return self.value
+
+
+def bench_property(loops):
+    range_it = iter(range(loops))
+    tpl = tuple(range(50))
+
+    t0 = pyperf.perf_counter()
+    for ii in range_it:
+        a = A(ii)
+        for ii in tpl:
+            _ = a.v
+    return pyperf.perf_counter() - t0
+
+
+def bench_class_method(loops):
+    range_it = iter(range(loops))
+    tpl = tuple(range(50))
+
+    t0 = pyperf.perf_counter()
+    for ii in range_it:
+        a = A(ii)
+        for ii in tpl:
+            _ = a.x()
+    return pyperf.perf_counter() - t0
+
+
 def bench_list_iter(loops):
     range_it = iter(range(loops))
 
@@ -108,3 +144,5 @@ if __name__ == "__main__":
     runner.bench_time_func("bench_list_iter", bench_list_iter)
     runner.bench_time_func("bench_tuple_iter", bench_tuple_iter)
     runner.bench_time_func("bench_range_iter", bench_range_iter)
+    runner.bench_time_func("bench_property", bench_property)
+    runner.bench_time_func("bench_class_method", bench_class_method)
