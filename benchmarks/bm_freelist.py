@@ -5,14 +5,12 @@ import pyperf
 
 def bench_list(loops):
     range_it = iter(range(loops))
-    tpl = tuple(range(100))
 
     t0 = pyperf.perf_counter()
     for ii in range_it:
-        for ii in tpl:
-            _ = [ii]
-            _ = [ii, ii + 1]
-            _ = [ii, ii + 1, ii]
+        _ = [ii]
+        _ = [ii, ii + 1]
+        _ = [ii, ii + 1, ii]
     return pyperf.perf_counter() - t0
 
 
