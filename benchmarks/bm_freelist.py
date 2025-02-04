@@ -14,24 +14,6 @@ def bench_list(loops):
     return pyperf.perf_counter() - t0
 
 
-def collatz(a):
-    while a > 1:
-        if a % 2 == 0:
-            a = a // 2
-        else:
-            a = 3 * a + 1
-
-
-def bench_int(loops):
-    range_it = range(loops)
-    tpl = tuple(range(200, 300))
-
-    t0 = pyperf.perf_counter()
-    for ii in range_it:
-        for jj in tpl:
-            collatz(jj)
-    return pyperf.perf_counter() - t0
-
 
 def bench_float(loops):
     range_it = iter(range(loops))
@@ -148,7 +130,6 @@ def bench_range_iter(loops):
 if __name__ == "__main__":
     runner = pyperf.Runner()
     runner.bench_time_func("bench_list", bench_list)
-    runner.bench_time_func("bench_int", bench_int)
     runner.bench_time_func("bench_float", bench_float)
     runner.bench_time_func("bench_builtin_or_method", bench_builtin_or_method)
     runner.bench_time_func("bench_list_iter", bench_list_iter)
