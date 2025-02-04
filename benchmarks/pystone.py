@@ -32,7 +32,7 @@ Version History:
 
 """
 
-LOOPS = 100_000
+LOOPS = 200_000
 
 from time import time
 
