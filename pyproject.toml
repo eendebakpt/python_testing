@@ -1,3 +1,8 @@
+[project]
+name = "python_testing"
+version = "0.1"
+requires-python = ">= 3.11"
+
 [build-system]
 # Minimum requirements for the build system to execute.
 requires = ["numpy", "setuptools", "wheel", "swig"]  # PEP 508 specifications.
