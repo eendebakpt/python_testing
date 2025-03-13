@@ -1,0 +1,27 @@
+# Temp files
+*py~
+
+# Build system
+cbuild
+build
+buildx
+python_testing.egg-info
+.mypy_cache
+_build
+.cache
+
+# IDE
+.idea/
+.pytest_cache/
+.kdev4
+.spyproject/
+
+# Config
+.pylintrc
+
+# Misc
+uv.lock
+pr*json
+main*json
+develop*.py
+
