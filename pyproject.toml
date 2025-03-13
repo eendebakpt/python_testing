@@ -1,3 +1,7 @@
+[project]
+name = "python_testing"
+version = "0.1"
+
 [build-system]
 # Minimum requirements for the build system to execute.
 requires = ["numpy", "setuptools", "wheel", "swig"]  # PEP 508 specifications.
@@ -24,7 +28,7 @@ lint.ignore = [ #"UP031", # use format specifiers instead of percent format
         ]
 line-length = 120
 
-target-version = "py310"
+target-version = "py311"
 
 [tool.mypy]
 ignore_missing_imports = true
