@@ -30,4 +30,3 @@ runner.timeit(name="creation kwarg", stmt="call = mc('sort', reverse=True)", set
 runner.timeit(name="creation+call kwarg", stmt="call = mc('sort', reverse=True); call(arr)", setup=setup)
 runner.timeit(name="call mixed position and kwarg", stmt="call_mixed_arg_kwarg(a)", setup=setup)
 runner.timeit(name="call many kwarg", stmt="call_many_kwargs(a)", setup=setup)
-

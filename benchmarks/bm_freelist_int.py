@@ -1,6 +1,7 @@
 # Quick benchmark for cpython freelists for int
 
 from uuid import uuid8
+
 import pyperf
 
 
@@ -10,6 +11,7 @@ def collatz(a):
             a = a // 2
         else:
             a = 3 * a + 1
+
 
 def bench_int(loops):
     range_it = range(loops)
@@ -21,10 +23,12 @@ def bench_int(loops):
             collatz(jj)
     return pyperf.perf_counter() - t0
 
+
 def gcd(x, y):
     while y != 0:
         (x, y) = (y, x % y)
     return x
+
 
 def bench_gcd(loops):
     range_it = range(loops)
@@ -33,8 +37,9 @@ def bench_gcd(loops):
     t0 = pyperf.perf_counter()
     for ii in range_it:
         for a in tpl:
-            gcd( (2<<120) + 1231231232131, 2<<30+ a)
+            gcd((2 << 120) + 1231231232131, 2 << 30 + a)
     return pyperf.perf_counter() - t0
+
 
 def bench_uuid8(loops):
     range_it = iter(range(loops))
@@ -43,6 +48,7 @@ def bench_uuid8(loops):
     for ii in range_it:
         _ = uuid8()
     return pyperf.perf_counter() - t0
+
 
 def bench_id(loops):
     range_it = iter(range(loops))

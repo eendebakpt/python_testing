@@ -35,5 +35,5 @@ plt.axhline(np.mean(tt_pr), color="C1", label="mean for PR")
 plt.ylabel("Execution time [s]")
 plt.legend()
 
-gain = np.mean(tt_pr) / np.mean(tt_main)
+gain = np.mean(tt_main) / np.mean(tt_pr)
 plt.title(f"Performance gain: {gain:.3f}")

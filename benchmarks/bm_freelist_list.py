@@ -2,45 +2,48 @@
 
 import pyperf
 
+
 def bench_list_from_tuple(loops):
     range_it = range(loops)
-   
+
     x = (1, 2)
     t0 = pyperf.perf_counter()
     for ii in range_it:
         _ = list(x)
     return pyperf.perf_counter() - t0
 
+
 def bench_list_create(loops):
     range_it = range(loops)
-   
-    x = [1, 2]
+
     t0 = pyperf.perf_counter()
     for ii in range_it:
-        x = [1, ii]
+        _ = [1, ii]
     return pyperf.perf_counter() - t0
+
 
 def bench_list_create_const(loops):
     range_it = range(loops)
-   
-    x = [1, 2]
+
     t0 = pyperf.perf_counter()
     for ii in range_it:
-        x = [1, 3]
+        _ = [1, 3]
     return pyperf.perf_counter() - t0
+
 
 def bench_list_copy(loops):
     range_it = range(loops)
-   
+
     x = [1, 2]
     t0 = pyperf.perf_counter()
     for ii in range_it:
         _ = x.copy()
     return pyperf.perf_counter() - t0
 
+
 def bench_list_repeat(loops):
     range_it = range(loops)
-   
+
     x = [1, 2]
     t0 = pyperf.perf_counter()
     for ii in range_it:

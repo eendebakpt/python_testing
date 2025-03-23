@@ -14,7 +14,6 @@ def bench_list(loops):
     return pyperf.perf_counter() - t0
 
 
-
 def bench_float(loops):
     range_it = iter(range(loops))
     tpl = tuple(range(500))
