@@ -50,14 +50,14 @@ def to_markdown(
 
 if sys.platform == "linux":
     stats_folder = Path(r"/tmp/py_stats")
-    stats_folder = Path(r"/home/eendebakpt/py_stats")
+    # stats_folder = Path(r"/home/eendebakpt/py_stats")
 else:
     stats_folder = Path(r"c:\temp\py_stats")
 
 files = glob.glob("*txt", root_dir=stats_folder)
 
 # print(files)
-if 1:
+if 0:
     latest_file = max([stats_folder / f for f in files], key=os.path.getctime)
     print(f"  {latest_file=}")
     files = [latest_file]
@@ -97,38 +97,44 @@ w = get_subset(results, "small_list")
 # rprint(w)
 
 
-def make_hist(results, tag):
+def make_hist(results, tag, maxsize=400):
     w = get_subset(results, tag)
     c = Counter()
     for k, v in w.items():
         num = int(k.removeprefix(tag))
         c[num] += v
+    c = {k: v for k, v in c.items() if k <= maxsize}
     c = sorted_dictionary(c)
     return c
 
 
-dealloc_hist = make_hist(results, tag="small_list_freelist freelist/normal deallocate")
+dealloc_hist = make_hist(results, tag="small_list_freelist normal/freelist deallocate")
 small_dealloc_hist = make_hist(results, tag="small_list_freelist small deallocate")
 
 normal_allocation_hist = make_hist(results, tag="small_list_freelist normal allocate")
+freelist_allocation_hist = make_hist(results, tag="small_list_freelist freelist allocate")
 small_allocation_hist = make_hist(results, tag="small_list_freelist small allocate")
+resizes_hist = make_hist(results, tag="Resize list to")
 
-
-# c= {k:v for k, v in dict(c).items() if k<=1024}
 # %%
+
 plt.rcParams["axes.labelsize"] = 14
 plt.rcParams["font.size"] = 12
 
 plt.figure(10)
 plt.clf()
 
-yy = list(small_allocation_hist.values())
-xx = list(small_allocation_hist.keys())
-plt.plot(xx, yy, ".", label="Small allocation ")
 
-yy = list(normal_allocation_hist.values())
-xx = list(normal_allocation_hist.keys())
-plt.plot(xx, yy, ".", label="Normal allocation")
+def plot_hist(h, label, **kwargs):
+    yy = list(h.values())
+    xx = list(h.keys())
+    kwargs = {"markersize": 10} | kwargs
+    plt.plot(xx, yy, ".", label=label, **kwargs)
+
+
+plot_hist(normal_allocation_hist, label="Normal allocation")
+plot_hist(freelist_allocation_hist, label="Normal freelist allocation")
+plot_hist(small_allocation_hist, markersize=12, label="Small freelist allocation")
 
 plt.xlabel("List size")
 plt.ylabel("Frequency (log scale)")
@@ -138,21 +144,25 @@ plt.title("Allocations")
 
 plt.figure(11)
 plt.clf()
-yy = list(dealloc_hist.values())
-xx = list(dealloc_hist.keys())
-plt.plot(xx, yy, ".", label="Deallocate")
+
+plot_hist(dealloc_hist, label="Normal deallocation")
+plot_hist(small_dealloc_hist, label="Deallocation to small")
+plt.yscale("log")
 plt.xlabel("List size")
 plt.ylabel("Frequency (log scale)")
-plt.yscale("log")
-
-yy = list(small_dealloc_hist.values())
-xx = list(small_dealloc_hist.keys())
-plt.plot(xx, yy, ".", label="Small list deallocation")
-plt.xlabel("List size")
-plt.ylabel("Frequency (log scale)")
-plt.yscale("log")
-
+plt.legend()
 plt.title("Deallocations")
+
+plt.figure(12)
+plt.clf()
+
+plot_hist(resizes_hist, label="List resize")
+plt.yscale("log")
+plt.xlabel("List size")
+plt.ylabel("Frequency (log scale)")
+plt.yscale("log")
+plt.legend()
+plt.title("Resize list to ")
 
 # plt.ylim([0, max(yy)])
 
