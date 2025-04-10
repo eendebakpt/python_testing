@@ -52,6 +52,16 @@ def det(a):
         # 1.9 us
     return r # 1.55 us
 
+@array_function_dispatch(_unary_dispatcher)
+def det(a):
+    a = asarray(a)
+    _assert_stacked_square(a)
+    t, result_t = _commonType(a)
+    signature = 'D->D' if isComplexType(t) else 'd->d'
+    r = _umath_linalg.det(a, signature=signature)
+    r = r.astype(result_t, copy=False)
+    return r
+
 #det=np.linalg.det
 r=det(A)
 %timeit det(A)
@@ -109,3 +119,30 @@ A=np.random.rand( 2,2)
 %timeit np.linalg.cond(A)
 
 # 2.19 μs ± 84.6 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+
+#%%
+import numpy as np
+r = np.float64(.1)
+tp = r.dtype.type
+
+s = r.astype(tp)
+print(s is r) # False
+help(r.astype) # Scalar method identical to the corresponding array attribute.
+help(np.ndarray.astype) # copy : bool, ... If set to false .... the input array is returned instead of a copy.
+
+
+s = r.astype(float, copy=True)
+print(s is r) # False
+
+#%%
+import copy
+import numpy as np
+r = np.float64(.1)
+
+for x in [1.2, r, r.dtype]:
+    print(copy.copy(x) is x)
+    
+
+"""
+ for a scalar with copy=False is _slow_ (internal convertion to np.ndarray?)
+""" 
