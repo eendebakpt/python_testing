@@ -25,4 +25,4 @@ pr*json
 main*json
 develop*.py
 callgrind.out.*
-
+perf.data*

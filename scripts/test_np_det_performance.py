@@ -2,10 +2,12 @@ import numpy as np
 import numpy.linalg._linalg
 from numpy.linalg._linalg import array_function_dispatch, single, double, inexact, _realType, isComplexType, _unary_dispatcher
 from numpy.linalg._linalg import LinAlgError, _assert_stacked_2d, _assert_stacked_square, _umath_linalg, asarray, _commonType
+from numpy import  promote_types
+
 A=np.random.rand( 3,3)
 A
 from functools import lru_cache
-import scipy.linalg
+#import scipy.linalg
 
 def _assert_stacked_2d(*arrays):
     for a in arrays:
@@ -62,12 +64,36 @@ def det(a):
     r = r.astype(result_t, copy=False)
     return r
 
+@array_function_dispatch(_unary_dispatcher)
+def det2(a):
+    a = asarray(a)
+    _assert_stacked_square(a)
+    #t, result_t = _commonType(a)
+    #signature = 'D->D' if isComplexType(t) else 'd->d'
+    d = promote_types(a.dtype, double)
+    r = _umath_linalg.det(a, dtype=d)
+    r = r.astype(d, copy=False)
+    return r
+
+
+r=det(A)
+r=det2(A)
+r=det(A.astype(np.float32))
+#r=det2(A)
+
+%timeit det2(A)
+
+
+#%%
 #det=np.linalg.det
 r=det(A)
+r=det2(A)
 %timeit det(A)
+%timeit det2(A)
 
+#%%
 
-%timeit scipy.linalg.det(A)
+#%timeit scipy.linalg.det(A)
 
 """ To optimize
 
@@ -109,7 +135,43 @@ print(a.astype(float, copy=False) is a)
 def commonType(*arrays):
     return _commonType(*arrays)
 
-%timeit _commonType(A.dtype)
+def _commonType(*arrays):
+    # in lite version, use higher precision (always double or cdouble)
+    result_type = single
+    is_complex = False
+    for a in arrays:
+        type_ = a.dtype.type
+        if issubclass(type_, inexact):
+            if isComplexType(type_):
+                is_complex = True
+            rt = _realType(type_, default=None)
+            if rt is double:
+                result_type = double
+            elif rt is None:
+                # unsupported inexact scalar
+                raise TypeError("array type %s is unsupported in linalg" %
+                        (a.dtype.name,))
+        else:
+            result_type = double
+    if is_complex:
+        result_type = _complex_types_map[result_type]
+        return cdouble, result_type
+    else:
+        return double, result_type
+_commonType(np.zeros( (3,3), dtype=int))
+
+%timeit _commonType(A)
+
+#%%
+from numpy._core import _multiarray_umath
+def _commonType(a):
+    return _multiarray_umath.result_type(a.dtype, double), _multiarray_umath.result_type(a.dtype, single)
+    #return np.promote_types(a.dtype, double), np.promote_types(a.dtype, single)
+    return np.result_type(a.dtype, double), np.result_type(a.dtype, single)
+
+_commonType(np.zeros( (3,3), dtype=int))
+
+%timeit _commonType(A)
 
 #%%
 A=np.random.rand( 2,2)
@@ -138,11 +200,12 @@ print(s is r) # False
 import copy
 import numpy as np
 r = np.float64(.1)
+x=np.array([1., 2.])
+x32=np.array([1., 2.], dtype=np.float32)
+double=np.float64.dtype
 
-for x in [1.2, r, r.dtype]:
-    print(copy.copy(x) is x)
+#for x in [1.2, r, r.dtype]:
+#    print(copy.copy(x) is x)
     
-
-"""
- for a scalar with copy=False is _slow_ (internal convertion to np.ndarray?)
-""" 
+%timeit np.result_type(x, x32)
+%timeit np.result_type(x, x)

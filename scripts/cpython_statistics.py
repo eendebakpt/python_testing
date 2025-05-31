@@ -3,9 +3,11 @@
 import glob
 import os
 import sys
+from collections import Counter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 from rich import print as rprint
 
 
@@ -20,11 +22,40 @@ def sort_values(d):
     return dict(sorted(d.items(), key=lambda x: x[1], reverse=True))
 
 
+def make_hist(results, tag, maxsize=400):
+    w = get_subset(results, tag)
+    c = Counter()
+    for k, v in w.items():
+        data = k.removeprefix(tag)
+        num = int(data)
+        c[num] += v
+    c = {k: v for k, v in c.items() if k <= maxsize}
+    c = sorted_dictionary(c)
+    return c
+
+
 def plot_hist(h, label, **kwargs):
     yy = list(h.values())
     xx = list(h.keys())
     kwargs = {"markersize": 10} | kwargs
     plt.plot(xx, yy, ".", label=label, **kwargs)
+
+
+def plot_barhist(h, label, **kwargs):
+    yy = list(h.values())
+    xx = list(h.keys())
+    bins = np.arange(-0.5 + min(yy, default=0), max(yy, default=10) + 0.5 + 1e-6, 1)
+    kwargs = {} | kwargs
+    # np.hist()
+    plt.bar(xx, yy, label=label, **kwargs)
+
+
+def plot_dothist(h, label, **kwargs):
+    yy = list(h.values())
+    xx = list(h.keys())
+    kwargs = {} | kwargs
+    # np.hist()
+    plt.plot(xx, yy, label=label, **kwargs)
 
 
 def sorted_dictionary(d):
@@ -61,7 +92,9 @@ if sys.platform == "linux":
 else:
     stats_folder = Path(r"c:\temp\py_stats")
 
-stats_folder = Path(r"/home/eendebakpt/freelist_py_stats")
+# stats_folder = Path(r"/home/eendebakpt/freelist_py_stats")
+# stats_folder = Path(r"/home/eendebakpt/py_stats_nbody")
+# stats_folder = Path(r"/home/eendebakpt/py_stats_regex_v8")
 
 
 files = glob.glob("*txt", root_dir=stats_folder)
@@ -72,7 +105,7 @@ if 0:
     print(f"  {latest_file=}")
     files = [latest_file]
 
-print(f"found {len(files)} files to analyze")
+print(f"found {len(files)} files to analyze in {stats_folder}")
 
 # %%
 # for f in files:
@@ -103,23 +136,63 @@ for f in files:
 # results = gather_statistics(f, results = results)
 # results
 
-# %%
-from collections import Counter
+# %% Ananlyse startup
+w = get_subset(results, "long")
+w
+
+ms = 100_000
+h = make_hist(results, tag="long alloc", maxsize=ms)
+h2 = make_hist(results, tag="long _PyLong_FromMedium", maxsize=ms)
+h3 = make_hist(results, tag="long get_small_int", maxsize=ms)
+
+
+pdir = Path(r"/home/eendebakpt/eendebakpt.github.io/posts")
+
+for idx, tag in enumerate(["alloc", "_PyLong_FromMedium", "get_small_int"]):
+    h = make_hist(results, tag=f"long {tag}", maxsize=ms)
+
+    plt.figure(10 + idx)
+    plt.clf()
+    # plot_barhist
+    plot_dothist(
+        h,
+        label=f"Long {tag}",
+        marker=".",
+        linestyle="",
+    )
+    plt.xlabel("long value")
+    plt.ylabel("Frequency ")
+    ncalls = sum(h.values())
+    plt.title(f"{tag}: {ncalls}")
+    print(f"{tag}: {ncalls}")
+
+    if tag in ["get_small_int", "_PyLong_FromMedium"]:
+        plt.yscale("log")
+
+plt.figure(100)
+plt.clf()
+
+for idx, tag in enumerate(["get_small_int", "_PyLong_FromMedium", "alloc"]):
+    h = make_hist(results, tag=f"long {tag}", maxsize=ms)
+
+    plot_dothist(
+        h,
+        label=f"Long {tag}",
+        marker=".",
+        linestyle="",
+    )
+    plt.xlabel("long value")
+    plt.ylabel("Frequency ")
+    ncalls = sum(h.values())
+    print(f"{tag}: {ncalls}")
+plt.title("Combined int allocations")
+plt.legend()
+plt.yscale("log")
+plt.axvline(0, color="c", linestyle=":")
+# %% Analyse freelists
 
 w = get_subset(results, "small_list")
 # rprint(w)
-
-
-def make_hist(results, tag, maxsize=400):
-    w = get_subset(results, tag)
-    c = Counter()
-    for k, v in w.items():
-        data = k.removeprefix(tag)
-        num = int(data)
-        c[num] += v
-    c = {k: v for k, v in c.items() if k <= maxsize}
-    c = sorted_dictionary(c)
-    return c
 
 
 dealloc_hist = make_hist(results, tag="small_list_freelist normal/freelist deallocate")
@@ -131,7 +204,6 @@ small_allocation_hist = make_hist(results, tag="small_list_freelist small alloca
 resizes_hist = make_hist(results, tag="Resize list to")
 
 # %% Freelist histograms
-import numpy as np
 from natsort import natsorted
 
 fresults = {k: v for k, v in results.items() if "freelistsize" in k and "_PyFreeList_Pop" in k}
@@ -386,3 +458,35 @@ s = ""
 s += to_markdown(strip_lead(alloc_results), "Allocations")
 s += to_markdown(strip_lead(freelist_results), "Freelist allocations")
 print(s)
+
+# %%
+import glob
+
+ll = glob.glob("/home/eendebakpt/pyperformance/pyperformance/data-files/benchmarks/bm*")
+ll
+
+# %%
+import subprocess
+
+for idx, fl in enumerate(ll):
+    l = fl.split("/")[-1]
+    print(f"{idx}: {l}")
+    cmd = f"/home/eendebakpt/cpython/python -X pystats ~/pyperformance/pyperformance/data-files/benchmarks/{l}/run_benchmark.py --debug-single-value  2> y{idx}.txt"
+    #    os.system(cmd, shell=True)
+    process = subprocess.run(cmd, shell=True)
+    # process.wait()
+    # cmd='cat y.txt | grep long_alloc'
+    # process=subprocess.run(cmd, shell=True)
+
+# %%
+
+for idx, fl in enumerate(ll):
+    l = fl.split("/")[-1]
+    print(f"{idx}: {l}")
+
+    with open(f"y{idx}.txt") as fid:
+        for line in fid.readlines():
+            if "long_alloc 2" in line:
+                print(line.strip())
+
+    # process.wait()
