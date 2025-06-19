@@ -1,13 +1,13 @@
 import collections.abc
 import functools
 import warnings
+from fractions import Fraction
 
 import numpy as np
 import numpy._core.numeric as _nx
 from numpy._core import overrides
 from numpy._core.multiarray import bincount
 from numpy._core.numeric import (
-    array,
     asanyarray,
     asarray,
     concatenate,
@@ -702,84 +702,6 @@ def select(condlist, choicelist, default=0):
     return result
 
 
-def _copy_dispatcher(a, order=None, subok=None):
-    return (a,)
-
-
-@array_function_dispatch(_copy_dispatcher)
-def copy(a, order="K", subok=False):
-    """
-    Return an array copy of the given object.
-
-    Parameters
-    ----------
-    a : array_like
-        Input data.
-    order : {'C', 'F', 'A', 'K'}, optional
-        Controls the memory layout of the copy. 'C' means C-order,
-        'F' means F-order, 'A' means 'F' if `a` is Fortran contiguous,
-        'C' otherwise. 'K' means match the layout of `a` as closely
-        as possible. (Note that this function and :meth:`ndarray.copy` are very
-        similar, but have different default values for their order=
-        arguments.)
-    subok : bool, optional
-        If True, then sub-classes will be passed-through, otherwise the
-        returned array will be forced to be a base-class array (defaults to False).
-
-    Returns
-    -------
-    arr : ndarray
-        Array interpretation of `a`.
-
-    See Also
-    --------
-    ndarray.copy : Preferred method for creating an array copy
-
-    Notes
-    -----
-    This is equivalent to:
-
-    >>> np.array(a, copy=True)  #doctest: +SKIP
-
-    The copy made of the data is shallow, i.e., for arrays with object dtype,
-    the new array will point to the same objects.
-    See Examples from `ndarray.copy`.
-
-    Examples
-    --------
-    >>> import numpy as np
-
-    Create an array x, with a reference y and a copy z:
-
-    >>> x = np.array([1, 2, 3])
-    >>> y = x
-    >>> z = np.copy(x)
-
-    Note that, when we modify x, y changes, but not z:
-
-    >>> x[0] = 10
-    >>> x[0] == y[0]
-    True
-    >>> x[0] == z[0]
-    False
-
-    Note that, np.copy clears previously set WRITEABLE=False flag.
-
-    >>> a = np.array([1, 2, 3])
-    >>> a.flags["WRITEABLE"] = False
-    >>> b = np.copy(a)
-    >>> b.flags["WRITEABLE"]
-    True
-    >>> b[0] = 3
-    >>> b
-    array([3, 2, 3])
-    """
-    return array(a, order=order, subok=subok, copy=True)
-
-
-# Basic operations
-
-
 def _percentile_dispatcher(
     a, q, axis=None, out=None, overwrite_input=None, method=None, keepdims=None, *, weights=None, interpolation=None
 ):
@@ -1451,3 +1373,24 @@ if 0:
     print(f" {a16*np.int64(4)=}")  # not equal to 1.6
 
     print(f"{4 * f16:.41f}")
+
+
+# %%
+
+a = np.arange(50_001)
+a16 = a.astype(np.float16)
+q = 0.999
+v = np.quantile(a, q)
+v16 = np.quantile(a16, q)
+print(v, v16, v - q * (a.size - 1))
+
+# %%
+print(a)
+for q in np.random.rand(10):
+    q = 0.40686685527161703
+    q = float(q)
+    v1 = np.quantile(a, q)
+    v2 = quantile(a, q)
+    print(q, v1, v2)
+    if v1 != v2:
+        raise
