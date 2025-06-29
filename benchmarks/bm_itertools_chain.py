@@ -51,4 +51,10 @@ for jj, chain_method in enumerate(options):
 
     v = statistics.median(times[jj]) * n
 
-    print(f"{chain_method} mean {w:.2f} / max {m:.2f} / median {v:.2f}")
+    if jj == 0:
+        w0 = w
+    ratio = w / w0
+    print(f"{chain_method} mean {w:.3f} / max {m:.3f} / median {v:.3f} ratio {ratio:.3f}")
+
+# FT build: python recipe 10% slower
+# normal build: python recipe 18% slower
