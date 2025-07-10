@@ -65,16 +65,25 @@ def list_contains():
 
 @register_benchmark
 def frozenset_contains():
-    z = 0
+    z = 1
     for i in range(500 * WORK_SCALE):
         z in small_frozenset
 
 
 @register_benchmark
-def set_contains():
-    z = 0
+def frozenset_contains_dunder():
+    z = 1
+    w = small_frozenset.__contains__
     for i in range(500 * WORK_SCALE):
-        z in small_set
+        w(z)
+
+
+@register_benchmark
+def set_contains():
+    z = 1
+    w = small_set.__contains__
+    for i in range(500 * WORK_SCALE):
+        w(z)
 
 
 @register_benchmark
