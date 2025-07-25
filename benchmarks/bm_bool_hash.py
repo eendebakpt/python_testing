@@ -23,11 +23,11 @@ def bench_bool_hash_False(loops):
     return pyperf.perf_counter() - t0
 
 
-def bench_hash_list(loops):
+def bench_hash_tuple(loops):
     loop_iterator = repeat(None, loops)
 
     t0 = pyperf.perf_counter()
-    x = [True, False, True, False, True, False, True, False]
+    x = (True, False, True, False, True, False, True, False)
     for ii in loop_iterator:
         hash(x)
     return pyperf.perf_counter() - t0
@@ -49,5 +49,5 @@ if __name__ == "__main__":
     runner = pyperf.Runner()
     runner.bench_time_func("bench_bool_hash_true", bench_bool_hash_true)
     runner.bench_time_func("bench_bool_hash_False", bench_bool_hash_False)
-    runner.bench_time_func("bench_hash_list", bench_hash_list)
+    runner.bench_time_func("bench_hash_tuple", bench_hash_tuple)
     runner.bench_time_func("bench_bool_in_set", bench_bool_in_set)
