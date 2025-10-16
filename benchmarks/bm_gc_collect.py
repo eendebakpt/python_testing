@@ -1,16 +1,36 @@
 import gc
 import time
 
-gc.collect()
+# import importlib
+# for module in sys.builtin_module_names:
+#    importlib.import_module(module)
+
+number_of_iterations = 4
+number_of_gc_iterations = 20
+
 gc.disable()
-for kk in range(4):
-    number_of_iterations = 20
+gc.collect()
+
+for kk in range(number_of_iterations):
     t0 = time.perf_counter()
-    for jj in range(number_of_iterations):
+    for jj in range(number_of_gc_iterations):
         gc.collect()
     dt = time.perf_counter() - t0
 
     print(f"time per collection: {1e3 * dt / number_of_iterations:.3f} [ms]")
+
+sets = [frozenset([ii]) for ii in range(10_000)]
+print("---")
+gc.disable()
+gc.collect()
+for kk in range(number_of_iterations):
+    t0 = time.perf_counter()
+    for jj in range(number_of_gc_iterations):
+        gc.collect()
+    dt = time.perf_counter() - t0
+
+    print(f"time per collection: {1e3 * dt / number_of_iterations:.3f} [ms]")
+
 
 """
 time per collection: 0.487 [ms]
@@ -21,7 +41,7 @@ time per collection: 0.484 [ms]
 
 """
 # %%
-if 0:
+if 1:
     import gc
 
     gc.collect()
@@ -38,7 +58,7 @@ if 0:
             number_of_objects_tracked += 1
             if type(obj) is immutable_type:
                 number_of_candidates += 1
-                print(f"{type(obj)} = {obj}")
+                # print(f"{type(obj)} = {obj}")
                 if candidate(obj):
                     number_of_immutable_candidates += 1
 
