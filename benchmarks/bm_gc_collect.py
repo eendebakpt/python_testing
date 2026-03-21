@@ -15,7 +15,9 @@ for kk in range(number_of_iterations):
         gc.collect()
     dt = time.perf_counter() - t0
     deltas.append(dt)
-print(f"time per collection: mean {1e3 * mean(deltas) / number_of_iterations:.3f} [ms], min {1e3 * min(deltas) / number_of_iterations:.3f} [ms]")
+print(
+    f"time per collection: mean {1e3 * mean(deltas) / number_of_iterations:.3f} [ms], min {1e3 * min(deltas) / number_of_iterations:.3f} [ms]"
+)
 
 sets = [frozenset([ii]) for ii in range(10_000)]
 deltas = []
@@ -28,14 +30,18 @@ for kk in range(number_of_iterations):
         gc.collect()
     dt = time.perf_counter() - t0
     deltas.append(dt)
-print(f"time per collection: mean {1e3 * mean(deltas) / number_of_iterations:.3f} [ms], min {1e3 * min(deltas) / number_of_iterations:.3f} [ms]")
+print(
+    f"time per collection: mean {1e3 * mean(deltas) / number_of_iterations:.3f} [ms], min {1e3 * min(deltas) / number_of_iterations:.3f} [ms]"
+)
 
-#%% Show statistics of frozen containers
+# %% Show statistics of frozen containers
 
 gc.collect()
 
+
 def candidate(obj):
     return all(not gc.is_tracked(x) for x in obj)
+
 
 for immutable_type in (tuple, frozenset):
     number_of_objects_tracked = 0
