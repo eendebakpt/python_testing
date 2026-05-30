@@ -8,12 +8,13 @@ import numpy as np
 x = np.array([1.0, 2.0])
 # y = np.array([0., 0.])
 
-x = 10.1
+#x = 10.1
 # x = np.float64(10.1)
 outer = 100
 inner = 3
 iterations = 200_000
 
+print(f'operate on {x}' )
 
 def bench(iterations, x):
     for _ in range(iterations):

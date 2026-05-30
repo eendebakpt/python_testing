@@ -64,7 +64,7 @@ We could probably refactor `generate_umath.py` to generate strided loops directl
 #### AI Disclosure
 
 Claude code was used in analysing the performance patterns and suggested to cache the ufunc loops. Significant parts of the code in the PR have been written by the tools.
-
+i
 <!-- If AI was used in the preparation of this pull request, please disclose
 the tool(s) used, how they were used, and specify what code or text is AI generated.
 If no AI tools were used, please write "No AI tools used" in this section. Read our
